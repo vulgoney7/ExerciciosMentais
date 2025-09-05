@@ -18,6 +18,8 @@ export function SalesPage({ results }: SalesPageProps) {
   const [hasWatched110Seconds, setHasWatched110Seconds] = useState(false)
   const [showPlayButton, setShowPlayButton] = useState(true)
   const [showPixCheckout, setShowPixCheckout] = useState(false)
+  const [videoOpacity, setVideoOpacity] = useState(0) // fade-in do vídeo
+  const [videoProgress, setVideoProgress] = useState(0) // progresso do vídeo
   const videoRef = useRef<HTMLVideoElement>(null)
   const watchTimeRef = useRef(0)
   const listenersAttachedRef = useRef(false)
@@ -29,6 +31,9 @@ export function SalesPage({ results }: SalesPageProps) {
       interval = setInterval(() => {
         if (videoRef.current) {
           watchTimeRef.current = videoRef.current.currentTime
+          const duration = videoRef.current.duration || 1
+          setVideoProgress((watchTimeRef.current / duration) * 100)
+
           if (watchTimeRef.current >= 110 && !hasWatched110Seconds) {
             setHasWatched110Seconds(true)
             console.log("[v0] VSL watched for 1:50 (110 seconds)", { results })
@@ -44,34 +49,32 @@ export function SalesPage({ results }: SalesPageProps) {
 
   const handlePlayVideo = () => {
     if (videoRef.current) {
-      videoRef.current.volume = 1 // volume máximo
+      videoRef.current.volume = 0
       videoRef.current.play()
       setHasStartedVideo(true)
       setShowPlayButton(false)
+
+      // Fade-in do som
+      let volume = 0
+      const fadeIn = setInterval(() => {
+        if (videoRef.current && volume < 1) {
+          volume += 0.05
+          videoRef.current.volume = Math.min(volume, 1)
+        } else {
+          clearInterval(fadeIn)
+        }
+      }, 50)
+
+      // Fade-in do vídeo (opacity)
+      setVideoOpacity(1)
     }
   }
 
   const benefits = [
-    {
-      icon: <Target className="w-5 h-5" />,
-      title: "Exercícios diários personalizados",
-      description: "Para melhorar memória e concentração baseado no seu perfil",
-    },
-    {
-      icon: <TrendingUp className="w-5 h-5" />,
-      title: "Acompanhamento de progresso",
-      description: "Veja sua evolução cognitiva em tempo real com métricas detalhadas",
-    },
-    {
-      icon: <Zap className="w-5 h-5" />,
-      title: "Estratégias especializadas",
-      description: "Técnicas comprovadas para aumentar energia mental e recordação",
-    },
-    {
-      icon: <Shield className="w-5 h-5" />,
-      title: "Prevenção do declínio",
-      description: "Proteja seu cérebro contra o envelhecimento cognitivo",
-    },
+    { icon: <Target className="w-5 h-5" />, title: "Exercícios diários personalizados", description: "Para melhorar memória e concentração baseado no seu perfil" },
+    { icon: <TrendingUp className="w-5 h-5" />, title: "Acompanhamento de progresso", description: "Veja sua evolução cognitiva em tempo real com métricas detalhadas" },
+    { icon: <Zap className="w-5 h-5" />, title: "Estratégias especializadas", description: "Técnicas comprovadas para aumentar energia mental e recordação" },
+    { icon: <Shield className="w-5 h-5" />, title: "Prevenção do declínio", description: "Proteja seu cérebro contra o envelhecimento cognitivo" },
   ]
 
   const handleCTAClick = (buttonType: string) => {
@@ -95,22 +98,22 @@ export function SalesPage({ results }: SalesPageProps) {
         </div>
 
         <div className="relative">
-          {/* Vídeo fixo, sem fullscreen, sem controles */}
+          {/* Vídeo fixo, sem fullscreen, fade-in */}
           <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
             <video
-  ref={videoRef}
+              ref={videoRef}
               src="/videos/Cakto Quiz.mp4"
-             controls={false}               // remove controles nativos
-  muted={false}                  // som ativado pelo botão
-  playsInline                     // impede fullscreen forçado no mobile
-  webkit-playsinline="true"       // iOS antigo
-  style={{
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    pointerEvents: "none",        // desativa clique direto
-    opacity: videoOpacity,
-    transition: "opacity 1s ease-in-out",
+              controls={false}
+              muted={false}
+              playsInline
+              webkit-playsinline="true"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                pointerEvents: "none",
+                opacity: videoOpacity,
+                transition: "opacity 1s ease-in-out",
               }}
             />
 
@@ -118,7 +121,7 @@ export function SalesPage({ results }: SalesPageProps) {
             {showPlayButton && (
               <div
                 className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 cursor-pointer"
-                onClick={handlePlayVideo}     // apenas este botão toca o vídeo
+                onClick={handlePlayVideo}
               >
                 <Button
                   size="lg"
@@ -128,6 +131,14 @@ export function SalesPage({ results }: SalesPageProps) {
                 </Button>
               </div>
             )}
+
+            {/* Barra de progresso customizada */}
+            <div className="absolute bottom-0 left-0 w-full h-1 bg-white/30">
+              <div
+                className="h-full bg-red-600 transition-all duration-500"
+                style={{ width: `${videoProgress}%` }}
+              />
+            </div>
           </div>
         </div>
 
