@@ -98,15 +98,19 @@ export function SalesPage({ results }: SalesPageProps) {
           {/* Vídeo fixo, sem fullscreen, sem controles */}
           <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
             <video
-              ref={videoRef}
+  ref={videoRef}
               src="/videos/Cakto Quiz.mp4"
-              controls={false}                // remove controles nativos
-              muted={false}                   // som ativado pelo botão
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                pointerEvents: "none",        // evita fullscreen ao clicar
+             controls={false}               // remove controles nativos
+  muted={false}                  // som ativado pelo botão
+  playsInline                     // impede fullscreen forçado no mobile
+  webkit-playsinline="true"       // iOS antigo
+  style={{
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    pointerEvents: "none",        // desativa clique direto
+    opacity: videoOpacity,
+    transition: "opacity 1s ease-in-out",
               }}
             />
 
