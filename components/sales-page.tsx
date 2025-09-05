@@ -99,7 +99,7 @@ export function SalesPage({ results }: SalesPageProps) {
           <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
             <video
               ref={videoRef}
-              src="/videos/seu-video.mp4"
+              src="/videos/Cakto Quiz.mp4"
               controls={false}                // remove controles nativos
               muted={false}                   // som ativado pelo botão
               style={{
