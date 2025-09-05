@@ -197,7 +197,7 @@ export function SalesPage({ results }: SalesPageProps) {
             className="w-full pulse-glow text-lg py-6"
             onClick={() => handleCTAClick("Final")}
           >
-            Reative Seu Cérebro Agora
+            Fortaleza Seu Cérebro Agora
           </Button>
 
           <div className="text-center space-y-2">
