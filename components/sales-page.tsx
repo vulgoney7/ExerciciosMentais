@@ -107,11 +107,10 @@ export function SalesPage({ results }: SalesPageProps) {
   const handlePlayVideo = async () => {
     if (vimeoPlayerRef.current && playerReady) {
       try {
-        // ✅ Se for iOS, só libera som no clique do botão
         await vimeoPlayerRef.current.setVolume(1)
         await vimeoPlayerRef.current.play()
         setHasStartedVideo(true)
-        setShowPlayButton(false)
+        setShowPlayButton(false) // ✅ botão some de vez
         console.log("[v0] VSL Play button clicked", { results })
       } catch (error) {
         console.error("[v0] Error playing video:", error)
@@ -159,8 +158,9 @@ export function SalesPage({ results }: SalesPageProps) {
             ATENÇÃO RISCO IDENTIFICADO
           </Badge>
           <h1 className="text-2xl font-bold text-balance">{"O Problema é Sério Mas a Solução está em Suas Mãos\n"}</h1>
-          <p className="text-sm text-orange-600 font-medium bg-orange-50 p-3 rounded-lg border border-orange-200">
-            Clique para assistir: O resultado do seu teste será revelado no vídeo
+          <p className="text-sm text-orange-600 font-medium bg-orange-50 p-3 rounded-lg border border-orange-200 animate-pulse">
+            {/* ✅ mensagem piscando */}
+            Clique no vídeo para assistir: O resultado do seu teste será revelado
           </p>
         </div>
 
@@ -170,7 +170,6 @@ export function SalesPage({ results }: SalesPageProps) {
             <iframe
               id="vimeo-player"
               src={`https://player.vimeo.com/video/1116027189?autoplay=1&controls=0${isIOS() ? "&muted=1" : ""}`}
-              // 🔑 iOS = autoplay mudo (muted=1) | Desktop/Android = autoplay com áudio
               frameBorder="0"
               allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
@@ -178,12 +177,14 @@ export function SalesPage({ results }: SalesPageProps) {
               title="Atenção!"
             />
             {showPlayButton && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+              <div
+                className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 cursor-pointer"
+                onClick={handlePlayVideo}
+              >
                 <Button
                   size="lg"
-                  onClick={handlePlayVideo}
+                  className="w-20 h-20 rounded-full bg-red-600 hover:bg-red-700 pulse-glow"
                   disabled={!playerReady}
-                  className="w-20 h-20 rounded-full bg-red-600 hover:bg-red-700 pulse-glow disabled:opacity-50"
                 >
                   <Play className="w-8 h-8 ml-1" fill="white" />
                 </Button>
