@@ -43,7 +43,7 @@ export function SalesPage({ results }: SalesPageProps) {
                 setPlayerReady(true)
                 console.log("[v0] Vimeo player ready")
 
-                // ✅ Forçar volume máximo e som ligado
+                // ✅ Forçar áudio ativo no máximo
                 vimeoPlayerRef.current.setVolume(1)
 
                 if (!listenersAttachedRef.current) {
@@ -99,7 +99,7 @@ export function SalesPage({ results }: SalesPageProps) {
   const handlePlayVideo = async () => {
     if (vimeoPlayerRef.current && playerReady) {
       try {
-        await vimeoPlayerRef.current.setVolume(1) // ✅ volume máximo
+        await vimeoPlayerRef.current.setVolume(1) // ✅ força volume máximo
         await vimeoPlayerRef.current.play()
         setHasStartedVideo(true)
         setShowPlayButton(false)
@@ -156,12 +156,12 @@ export function SalesPage({ results }: SalesPageProps) {
         </div>
 
         <div className="relative">
-          {/* ✅ vídeo maior */}
+          {/* ✅ vídeo maior e agora inicia com áudio ativo */}
           <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
             <iframe
               id="vimeo-player"
-              src="https://player.vimeo.com/video/1116027189?autoplay=0&controls=0&muted=0" 
-              // ✅ controls=0 remove tudo (volume, fullscreen, etc)
+              src="https://player.vimeo.com/video/1116027189?autoplay=1&controls=0" 
+              // 🔑 autoplay=1 garante que o vídeo inicie com áudio
               frameBorder="0"
               allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
@@ -183,7 +183,6 @@ export function SalesPage({ results }: SalesPageProps) {
           </div>
         </div>
 
-        {/* resto do código permanece igual */}
         <div
           className={`transition-all duration-1000 ${hasWatched110Seconds ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}
         >
