@@ -13,104 +13,41 @@ interface SalesPageProps {
   results: GameResults
 }
 
-declare global {
-  interface Window {
-    Vimeo: any
-  }
-}
-
 export function SalesPage({ results }: SalesPageProps) {
   const [hasStartedVideo, setHasStartedVideo] = useState(false)
   const [hasWatched110Seconds, setHasWatched110Seconds] = useState(false)
   const [showPlayButton, setShowPlayButton] = useState(true)
-  const [playerReady, setPlayerReady] = useState(false)
   const [showPixCheckout, setShowPixCheckout] = useState(false)
-  const vimeoPlayerRef = useRef<any>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const watchTimeRef = useRef(0)
   const listenersAttachedRef = useRef(false)
 
+  // Controle do tempo assistido
   useEffect(() => {
-    const loadVimeoPlayer = () => {
-      if (window.Vimeo && !vimeoPlayerRef.current) {
-        const iframe = document.querySelector("#vimeo-player") as HTMLIFrameElement
-        if (iframe) {
-          try {
-            vimeoPlayerRef.current = new window.Vimeo.Player(iframe)
-
-            vimeoPlayerRef.current
-              .ready()
-              .then(() => {
-                setPlayerReady(true)
-                console.log("[v0] Vimeo player ready")
-
-                // ✅ Forçar volume máximo ao iniciar
-                vimeoPlayerRef.current.setVolume(1)
-
-                if (!listenersAttachedRef.current) {
-                  vimeoPlayerRef.current.on("timeupdate", (data: any) => {
-                    watchTimeRef.current = data.seconds
-
-                    if (watchTimeRef.current >= 110 && !hasWatched110Seconds) {
-                      setHasWatched110Seconds(true)
-                      console.log("[v0] VSL watched for 1:50 (110 seconds)", { results })
-                    }
-                  })
-                  listenersAttachedRef.current = true
-                }
-              })
-              .catch((error: any) => {
-                console.error("[v0] Vimeo player initialization error:", error)
-              })
-          } catch (error) {
-            console.error("[v0] Error creating Vimeo player:", error)
+    let interval: NodeJS.Timer
+    if (videoRef.current && !listenersAttachedRef.current) {
+      interval = setInterval(() => {
+        if (videoRef.current) {
+          watchTimeRef.current = videoRef.current.currentTime
+          if (watchTimeRef.current >= 110 && !hasWatched110Seconds) {
+            setHasWatched110Seconds(true)
+            console.log("[v0] VSL watched for 1:50 (110 seconds)", { results })
           }
         }
-      }
+      }, 500)
+      listenersAttachedRef.current = true
     }
-
-    if (!window.Vimeo) {
-      const script = document.createElement("script")
-      script.src = "https://player.vimeo.com/api/player.js"
-      script.onload = loadVimeoPlayer
-      script.onerror = () => console.error("[v0] Failed to load Vimeo Player API")
-      document.head.appendChild(script)
-
-      return () => {
-        if (document.head.contains(script)) {
-          document.head.removeChild(script)
-        }
-      }
-    } else {
-      loadVimeoPlayer()
-    }
-
     return () => {
-      if (vimeoPlayerRef.current && listenersAttachedRef.current) {
-        try {
-          vimeoPlayerRef.current.off("timeupdate")
-          listenersAttachedRef.current = false
-        } catch (error) {
-          console.error("[v0] Error removing Vimeo event listeners:", error)
-        }
-      }
+      clearInterval(interval)
     }
-  }, [])
+  }, [hasWatched110Seconds, results])
 
-  const handlePlayVideo = async () => {
-    if (vimeoPlayerRef.current && playerReady) {
-      try {
-        await vimeoPlayerRef.current.setVolume(1) // ✅ volume máximo
-        await vimeoPlayerRef.current.play()
-        setHasStartedVideo(true)
-        setShowPlayButton(false) // ✅ overlay do botão de play some
-        console.log("[v0] VSL Play button clicked", { results })
-      } catch (error) {
-        console.error("[v0] Error playing video:", error)
-        setHasStartedVideo(true)
-        setShowPlayButton(false)
-      }
-    } else {
-      console.warn("[v0] Vimeo player not ready yet")
+  const handlePlayVideo = () => {
+    if (videoRef.current) {
+      videoRef.current.volume = 1 // volume máximo
+      videoRef.current.play()
+      setHasStartedVideo(true)
+      setShowPlayButton(false)
     }
   }
 
@@ -156,17 +93,15 @@ export function SalesPage({ results }: SalesPageProps) {
         </div>
 
         <div className="relative">
-          {/* ✅ vídeo maior */}
+          {/* ✅ vídeo direto */}
           <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
-            <iframe
-              id="vimeo-player"
-              src="https://player.vimeo.com/video/1116027189?autoplay=0&controls=1&muted=0"
-              frameBorder="0"
-              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-              title="Atenção!"
+            <video
+              ref={videoRef}
+              src="/videos/Cakto Quiz.mp4" // coloque aqui o caminho do seu arquivo de vídeo
+              controls
+              style={{ width: "100%", height: "100%" }}
             />
+
             {showPlayButton && (
               <div
                 className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 cursor-pointer"
@@ -175,7 +110,6 @@ export function SalesPage({ results }: SalesPageProps) {
                 <Button
                   size="lg"
                   className="w-20 h-20 rounded-full bg-red-600 hover:bg-red-700 pulse-glow"
-                  disabled={!playerReady}
                 >
                   <Play className="w-8 h-8 ml-1" fill="white" />
                 </Button>
