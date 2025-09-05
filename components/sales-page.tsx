@@ -104,24 +104,6 @@ export function SalesPage({ results }: SalesPageProps) {
     }
   }, [])
 
-  const handlePlayVideo = async () => {
-    if (vimeoPlayerRef.current && playerReady) {
-      try {
-        await vimeoPlayerRef.current.setVolume(1)
-        await vimeoPlayerRef.current.play()
-        setHasStartedVideo(true)
-        setShowPlayButton(false) // ✅ botão some de vez
-        console.log("[v0] VSL Play button clicked", { results })
-      } catch (error) {
-        console.error("[v0] Error playing video:", error)
-        setHasStartedVideo(true)
-        setShowPlayButton(false)
-      }
-    } else {
-      console.warn("[v0] Vimeo player not ready yet")
-    }
-  }
-
   const benefits = [
     {
       icon: <Target className="w-5 h-5" />,
@@ -157,9 +139,10 @@ export function SalesPage({ results }: SalesPageProps) {
           <Badge variant="destructive" className="text-sm">
             ATENÇÃO RISCO IDENTIFICADO
           </Badge>
-          <h1 className="text-2xl font-bold text-balance">{"O Problema é Sério Mas a Solução está em Suas Mãos\n"}</h1>
+          <h1 className="text-2xl font-bold text-balance">
+            {"O Problema é Sério Mas a Solução está em Suas Mãos\n"}
+          </h1>
           <p className="text-sm text-orange-600 font-medium bg-orange-50 p-3 rounded-lg border border-orange-200 animate-pulse">
-            {/* ✅ mensagem piscando */}
             Clique no vídeo para assistir: O resultado do seu teste será revelado
           </p>
         </div>
@@ -179,7 +162,18 @@ export function SalesPage({ results }: SalesPageProps) {
             {showPlayButton && (
               <div
                 className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 cursor-pointer"
-                onClick={handlePlayVideo}
+                onClick={async () => {
+                  if (vimeoPlayerRef.current && playerReady) {
+                    try {
+                      await vimeoPlayerRef.current.setVolume(1)
+                      await vimeoPlayerRef.current.play()
+                    } catch (error) {
+                      console.error("[v0] Error playing video:", error)
+                    }
+                    setHasStartedVideo(true)
+                    setShowPlayButton(false) // ✅ botão e overlay somem de vez
+                  }
+                }}
               >
                 <Button
                   size="lg"
@@ -195,7 +189,9 @@ export function SalesPage({ results }: SalesPageProps) {
 
         <div
           className={`transition-all duration-1000 ${
-            hasWatched110Seconds ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+            hasWatched110Seconds
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-4 pointer-events-none"
           }`}
         >
           <Button
@@ -241,7 +237,11 @@ export function SalesPage({ results }: SalesPageProps) {
             </div>
           </Card>
 
-          <Button size="lg" className="w-full pulse-glow text-lg py-6" onClick={() => handleCTAClick("Final")}>
+          <Button
+            size="lg"
+            className="w-full pulse-glow text-lg py-6"
+            onClick={() => handleCTAClick("Final")}
+          >
             Reative Seu Cérebro Agora
           </Button>
 
