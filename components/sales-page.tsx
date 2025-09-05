@@ -95,19 +95,26 @@ export function SalesPage({ results }: SalesPageProps) {
         </div>
 
         <div className="relative">
-          {/* ✅ vídeo direto sem controles */}
+          {/* Vídeo fixo, sem fullscreen, sem controles */}
           <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
             <video
               ref={videoRef}
-              src="/videos/Cakto Quiz.mp4" // coloque aqui o caminho do seu arquivo de vídeo
-              controls={false} // remove todos os controles nativos
-              style={{ width: "100%", height: "100%", pointerEvents: "none" }} // impede fullscreen e clique direto
+              src="/videos/seu-video.mp4"
+              controls={false}                // remove controles nativos
+              muted={false}                   // som ativado pelo botão
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                pointerEvents: "none",        // evita fullscreen ao clicar
+              }}
             />
 
+            {/* Overlay customizado para tocar vídeo */}
             {showPlayButton && (
               <div
                 className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 cursor-pointer"
-                onClick={handlePlayVideo}
+                onClick={handlePlayVideo}     // apenas este botão toca o vídeo
               >
                 <Button
                   size="lg"
@@ -190,6 +197,7 @@ export function SalesPage({ results }: SalesPageProps) {
           </div>
         </div>
       </div>
+
       {showPixCheckout && <PixCheckout onClose={() => setShowPixCheckout(false)} />}
     </div>
   )
