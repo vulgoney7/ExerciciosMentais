@@ -6,9 +6,9 @@ import Script from 'next/script'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Desafio Mental',
+  description: 'Equipe Ativamente',
+  generator: 'Desafio Mental',
 }
 
 export default function RootLayout({
