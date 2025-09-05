@@ -98,7 +98,7 @@ export function SalesPage({ results }: SalesPageProps) {
         </div>
 
         <div className="relative">
-          {/* Vídeo fixo, sem fullscreen, fade-in */}
+          {/* Vídeo fixo, sem fullscreen, fade-in e sem cortes */}
           <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
             <video
               ref={videoRef}
@@ -110,7 +110,7 @@ export function SalesPage({ results }: SalesPageProps) {
               style={{
                 width: "100%",
                 height: "100%",
-                objectFit: "cover",
+                objectFit: "contain", // ajusta para mostrar o vídeo inteiro
                 pointerEvents: "none",
                 opacity: videoOpacity,
                 transition: "opacity 1s ease-in-out",
