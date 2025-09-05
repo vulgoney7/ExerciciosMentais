@@ -19,12 +19,6 @@ declare global {
   }
 }
 
-// 🔑 Detecta se é iOS (Safari bloqueia autoplay com som)
-const isIOS = () => {
-  if (typeof window === "undefined") return false
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
-}
-
 export function SalesPage({ results }: SalesPageProps) {
   const [hasStartedVideo, setHasStartedVideo] = useState(false)
   const [hasWatched110Seconds, setHasWatched110Seconds] = useState(false)
@@ -49,10 +43,8 @@ export function SalesPage({ results }: SalesPageProps) {
                 setPlayerReady(true)
                 console.log("[v0] Vimeo player ready")
 
-                if (!isIOS()) {
-                  // ✅ No desktop/Android: já inicia com volume máximo
-                  vimeoPlayerRef.current.setVolume(1)
-                }
+                // ✅ Forçar volume máximo ao iniciar
+                vimeoPlayerRef.current.setVolume(1)
 
                 if (!listenersAttachedRef.current) {
                   vimeoPlayerRef.current.on("timeupdate", (data: any) => {
@@ -104,6 +96,24 @@ export function SalesPage({ results }: SalesPageProps) {
     }
   }, [])
 
+  const handlePlayVideo = async () => {
+    if (vimeoPlayerRef.current && playerReady) {
+      try {
+        await vimeoPlayerRef.current.setVolume(1) // ✅ volume máximo
+        await vimeoPlayerRef.current.play()
+        setHasStartedVideo(true)
+        setShowPlayButton(false) // ✅ overlay do botão de play some
+        console.log("[v0] VSL Play button clicked", { results })
+      } catch (error) {
+        console.error("[v0] Error playing video:", error)
+        setHasStartedVideo(true)
+        setShowPlayButton(false)
+      }
+    } else {
+      console.warn("[v0] Vimeo player not ready yet")
+    }
+  }
+
   const benefits = [
     {
       icon: <Target className="w-5 h-5" />,
@@ -139,11 +149,9 @@ export function SalesPage({ results }: SalesPageProps) {
           <Badge variant="destructive" className="text-sm">
             ATENÇÃO RISCO IDENTIFICADO
           </Badge>
-          <h1 className="text-2xl font-bold text-balance">
-            {"O Problema é Sério Mas a Solução está em Suas Mãos\n"}
-          </h1>
+          <h1 className="text-2xl font-bold text-balance">{"O Problema é Sério Mas a Solução está em Suas Mãos\n"}</h1>
           <p className="text-sm text-orange-600 font-medium bg-orange-50 p-3 rounded-lg border border-orange-200 animate-pulse">
-            Clique no vídeo para assistir: O resultado do seu teste será revelado
+            Clique para assistir: O resultado do seu teste será revelado no vídeo
           </p>
         </div>
 
@@ -152,7 +160,7 @@ export function SalesPage({ results }: SalesPageProps) {
           <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
             <iframe
               id="vimeo-player"
-              src={`https://player.vimeo.com/video/1116027189?autoplay=1&controls=0${isIOS() ? "&muted=1" : ""}`}
+              src="https://player.vimeo.com/video/1116027189?autoplay=0&controls=1&muted=0"
               frameBorder="0"
               allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
@@ -162,18 +170,7 @@ export function SalesPage({ results }: SalesPageProps) {
             {showPlayButton && (
               <div
                 className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 cursor-pointer"
-                onClick={async () => {
-                  if (vimeoPlayerRef.current && playerReady) {
-                    try {
-                      await vimeoPlayerRef.current.setVolume(1)
-                      await vimeoPlayerRef.current.play()
-                    } catch (error) {
-                      console.error("[v0] Error playing video:", error)
-                    }
-                    setHasStartedVideo(true)
-                    setShowPlayButton(false) // ✅ botão e overlay somem de vez
-                  }
-                }}
+                onClick={handlePlayVideo}
               >
                 <Button
                   size="lg"
@@ -189,9 +186,7 @@ export function SalesPage({ results }: SalesPageProps) {
 
         <div
           className={`transition-all duration-1000 ${
-            hasWatched110Seconds
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-4 pointer-events-none"
+            hasWatched110Seconds ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
           }`}
         >
           <Button
@@ -237,11 +232,7 @@ export function SalesPage({ results }: SalesPageProps) {
             </div>
           </Card>
 
-          <Button
-            size="lg"
-            className="w-full pulse-glow text-lg py-6"
-            onClick={() => handleCTAClick("Final")}
-          >
+          <Button size="lg" className="w-full pulse-glow text-lg py-6" onClick={() => handleCTAClick("Final")}>
             Reative Seu Cérebro Agora
           </Button>
 
