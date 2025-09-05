@@ -86,20 +86,22 @@ export function SalesPage({ results }: SalesPageProps) {
           <Badge variant="destructive" className="text-sm">
             ATENÇÃO RISCO IDENTIFICADO
           </Badge>
-          <h1 className="text-2xl font-bold text-balance">{"O Problema é Sério Mas a Solução está em Suas Mãos\n"}</h1>
+          <h1 className="text-2xl font-bold text-balance">
+            {"O Problema é Sério Mas a Solução está em Suas Mãos\n"}
+          </h1>
           <p className="text-sm text-orange-600 font-medium bg-orange-50 p-3 rounded-lg border border-orange-200 animate-pulse">
             Clique para assistir: O resultado do seu teste será revelado no vídeo
           </p>
         </div>
 
         <div className="relative">
-          {/* ✅ vídeo direto */}
+          {/* ✅ vídeo direto sem controles */}
           <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
             <video
               ref={videoRef}
               src="/videos/Cakto Quiz.mp4" // coloque aqui o caminho do seu arquivo de vídeo
-              controls
-              style={{ width: "100%", height: "100%" }}
+              controls={false} // remove todos os controles nativos
+              style={{ width: "100%", height: "100%", pointerEvents: "none" }} // impede fullscreen e clique direto
             />
 
             {showPlayButton && (
@@ -120,7 +122,9 @@ export function SalesPage({ results }: SalesPageProps) {
 
         <div
           className={`transition-all duration-1000 ${
-            hasWatched110Seconds ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+            hasWatched110Seconds
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-4 pointer-events-none"
           }`}
         >
           <Button
@@ -166,7 +170,11 @@ export function SalesPage({ results }: SalesPageProps) {
             </div>
           </Card>
 
-          <Button size="lg" className="w-full pulse-glow text-lg py-6" onClick={() => handleCTAClick("Final")}>
+          <Button
+            size="lg"
+            className="w-full pulse-glow text-lg py-6"
+            onClick={() => handleCTAClick("Final")}
+          >
             Reative Seu Cérebro Agora
           </Button>
 
