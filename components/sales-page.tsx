@@ -43,6 +43,9 @@ export function SalesPage({ results }: SalesPageProps) {
                 setPlayerReady(true)
                 console.log("[v0] Vimeo player ready")
 
+                // ✅ Forçar volume máximo e som ligado
+                vimeoPlayerRef.current.setVolume(1)
+
                 if (!listenersAttachedRef.current) {
                   vimeoPlayerRef.current.on("timeupdate", (data: any) => {
                     watchTimeRef.current = data.seconds
@@ -96,6 +99,7 @@ export function SalesPage({ results }: SalesPageProps) {
   const handlePlayVideo = async () => {
     if (vimeoPlayerRef.current && playerReady) {
       try {
+        await vimeoPlayerRef.current.setVolume(1) // ✅ volume máximo
         await vimeoPlayerRef.current.play()
         setHasStartedVideo(true)
         setShowPlayButton(false)
@@ -152,19 +156,18 @@ export function SalesPage({ results }: SalesPageProps) {
         </div>
 
         <div className="relative">
-          <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
-            <div style={{ padding: "56.25% 0 0 0", position: "relative" }}>
-              <iframe
-                id="vimeo-player"
-                src="https://player.vimeo.com/video/1116027189?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=0&controls=1&muted=0"
-                frameBorder="0"
-                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-                title="Atenção!"
-              />
-            </div>
-
+          {/* ✅ vídeo maior */}
+          <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
+            <iframe
+              id="vimeo-player"
+              src="https://player.vimeo.com/video/1116027189?autoplay=0&controls=0&muted=0" 
+              // ✅ controls=0 remove tudo (volume, fullscreen, etc)
+              frameBorder="0"
+              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+              title="Atenção!"
+            />
             {showPlayButton && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
                 <Button
@@ -180,6 +183,7 @@ export function SalesPage({ results }: SalesPageProps) {
           </div>
         </div>
 
+        {/* resto do código permanece igual */}
         <div
           className={`transition-all duration-1000 ${hasWatched110Seconds ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}
         >
