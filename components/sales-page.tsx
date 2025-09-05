@@ -19,6 +19,12 @@ declare global {
   }
 }
 
+// 🔑 Detecta se é iOS (Safari bloqueia autoplay com som)
+const isIOS = () => {
+  if (typeof window === "undefined") return false
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+}
+
 export function SalesPage({ results }: SalesPageProps) {
   const [hasStartedVideo, setHasStartedVideo] = useState(false)
   const [hasWatched110Seconds, setHasWatched110Seconds] = useState(false)
@@ -43,8 +49,10 @@ export function SalesPage({ results }: SalesPageProps) {
                 setPlayerReady(true)
                 console.log("[v0] Vimeo player ready")
 
-                // ✅ Forçar áudio ativo no máximo
-                vimeoPlayerRef.current.setVolume(1)
+                if (!isIOS()) {
+                  // ✅ No desktop/Android: já inicia com volume máximo
+                  vimeoPlayerRef.current.setVolume(1)
+                }
 
                 if (!listenersAttachedRef.current) {
                   vimeoPlayerRef.current.on("timeupdate", (data: any) => {
@@ -99,7 +107,8 @@ export function SalesPage({ results }: SalesPageProps) {
   const handlePlayVideo = async () => {
     if (vimeoPlayerRef.current && playerReady) {
       try {
-        await vimeoPlayerRef.current.setVolume(1) // ✅ força volume máximo
+        // ✅ Se for iOS, só libera som no clique do botão
+        await vimeoPlayerRef.current.setVolume(1)
         await vimeoPlayerRef.current.play()
         setHasStartedVideo(true)
         setShowPlayButton(false)
@@ -156,12 +165,12 @@ export function SalesPage({ results }: SalesPageProps) {
         </div>
 
         <div className="relative">
-          {/* ✅ vídeo maior e agora inicia com áudio ativo */}
+          {/* ✅ vídeo maior */}
           <div className="rounded-lg overflow-hidden relative" style={{ height: "280px" }}>
             <iframe
               id="vimeo-player"
-              src="https://player.vimeo.com/video/1116027189?autoplay=1&controls=0" 
-              // 🔑 autoplay=1 garante que o vídeo inicie com áudio
+              src={`https://player.vimeo.com/video/1116027189?autoplay=1&controls=0${isIOS() ? "&muted=1" : ""}`}
+              // 🔑 iOS = autoplay mudo (muted=1) | Desktop/Android = autoplay com áudio
               frameBorder="0"
               allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
@@ -184,7 +193,9 @@ export function SalesPage({ results }: SalesPageProps) {
         </div>
 
         <div
-          className={`transition-all duration-1000 ${hasWatched110Seconds ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}
+          className={`transition-all duration-1000 ${
+            hasWatched110Seconds ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+          }`}
         >
           <Button
             size="lg"
