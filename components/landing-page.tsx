@@ -32,12 +32,12 @@ export function LandingPage({ onNext }: LandingPageProps) {
       <div className="max-w-md w-full space-y-6 text-center">
         <div className="space-y-4">
           <div className="w-full h-48 sm:h-56 mx-auto relative">
-            <Image src="/images/img1" alt="Cérebro 3D" fill className="object-contain rounded-lg font-bold" priority />
+            <Image src="/images/Gemini_Generated_Image_jdf1y3jdf1y3jdf1.png" alt="Cérebro 3D" fill className="object-contain rounded-lg font-bold" priority />
           </div>
           <h1 className="font-bold text-balance leading-tight text-3xl">
-            E se a sua memória desaparecesse amanhã? O seu cérebro pode estar mais lento do que você pensa
+            E se a sua memória desaparecesse amanhã?
           </h1>
-          <p className="text-lg text-pretty text-red-600">Não adie a decisão que pode salvar suas lembranças, faça o teste e descubra a verdade agora</p>
+          <p className="text-lg text-pretty text-red-600">Não adie a decisão que pode salvar suas lembranças, faça o teste agora e tenha o seu diagnóstico</p>
         </div>
 
         <Card className="p-6 space-y-4">
