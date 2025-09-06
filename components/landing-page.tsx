@@ -52,7 +52,7 @@ export function LandingPage({ onNext }: LandingPageProps) {
               <span>78% das pessoas falham no primeiro teste</span>
             </div>
             <div className="flex items-center space-x-3 text-sm">
-              <Image src="/images/brain-3d.jpeg" alt="Cérebro 3D" width={16} height={16} className="rounded-lg" />
+              <Image src="/images/img1" alt="Cérebro 3D" width={16} height={16} className="rounded-lg" />
               <span>Apenas 3 minutos para descobrir a verdade</span>
             </div>
           </div>
