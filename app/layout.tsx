@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
@@ -14,55 +13,38 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
     <html lang="en">
       <head>
-        {/* Meta Pixel + CAPI Integration */}
+        {/* Meta Pixel Code */}
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
             if (!window.fbq) {
-              !function(f,b,e,v,n,t,s)
-              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)}(window, document,'script',
-              'https://connect.facebook.net/en_US/fbevents.js');
+              !function(f,b,e,v,n,t,s){
+                if(f.fbq)return;n=f.fbq=function(){
+                  n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)
+                };
+                if(!f._fbq)f._fbq=n;
+                n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)
+              }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
               fbq('init', '1309033924008612');
-
-              // ---------- PageView ----------
-              const pageViewId = 'pageview-' + Date.now();
-              fbq('track', 'PageView', {}, { eventID: pageViewId });
-              fetch('/api/meta-capi', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ event_name: 'PageView', event_id: pageViewId })
-              });
-
-              // ---------- ViewContent ----------
-              const viewContentId = 'viewcontent-' + Date.now();
-              fbq('track', 'ViewContent', { content_name: document.title }, { eventID: viewContentId });
-              fetch('/api/meta-capi', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ event_name: 'ViewContent', event_id: viewContentId })
-              });
-
-              // Função helper para disparar eventos customizados
-              window.trackMetaEvent = function(eventName, customData = {}) {
-                const eid = eventName.toLowerCase() + '-' + Date.now();
-                fbq('track', eventName, customData, { eventID: eid });
-                fetch('/api/meta-capi', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ event_name: eventName, event_id: eid })
-                });
-                return eid;
-              }
             }
+
+            // Gera um eventID único para deduplicação com CAPI
+            const eventId = 'pageview-' + Date.now() + '-' + Math.random().toString(36).substring(2,9);
+
+            // Dispara o PageView com eventID
+            fbq('track', 'PageView', {}, { eventID: eventId });
+
+            // Exponha o eventId no window para enviar via API também
+            window.__fb_event_id__ = eventId;
           `}
         </Script>
 
@@ -74,33 +56,35 @@ export default function RootLayout({
             src="https://www.facebook.com/tr?id=1309033924008612&ev=PageView&noscript=1"
           />
         </noscript>
-      </head>
 
+        {/* UTMify Pixel */}
+        <Script id="utmify-pixel" strategy="afterInteractive">
+          {`
+            if (!window.utmifyPixelLoaded) {
+              window.pixelId = "68b8894aa4090deaa37d27b0";
+              var a = document.createElement("script");
+              a.setAttribute("async", "");
+              a.setAttribute("defer", "");
+              a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
+              document.head.appendChild(a);
+              window.utmifyPixelLoaded = true;
+            }
+          `}
+        </Script>
+
+        {/* UTMify Script */}
+        <Script
+          src="https://cdn.utmify.com.br/scripts/utms/latest.js"
+          data-utmify-prevent-xcod-sck
+          data-utmify-prevent-subids
+          strategy="afterInteractive"
+          async
+          defer
+        />
+      </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         {children}
         <Analytics />
-
-        {/* Botões de exemplo para AddToCart e InitiateCheckout */}
-        <Script id="custom-event-binds" strategy="afterInteractive">
-          {`
-            document.addEventListener('DOMContentLoaded', () => {
-              const cta = document.querySelector('.cta-button');
-              const checkout = document.querySelector('.checkout-button');
-
-              if (cta) {
-                cta.addEventListener('click', () => {
-                  window.trackMetaEvent('AddToCart', { content_name: 'Oferta Principal' });
-                });
-              }
-
-              if (checkout) {
-                checkout.addEventListener('click', () => {
-                  window.trackMetaEvent('InitiateCheckout', { value: 97.00, currency: 'BRL' });
-                });
-              }
-            });
-          `}
-        </Script>
       </body>
     </html>
   )
