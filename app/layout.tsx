@@ -23,19 +23,39 @@ export default function RootLayout({
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
             if (!window.fbq) {
-              !function(f,b,e,v,n,t,s)
-              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)}(window, document,'script',
-              'https://connect.facebook.net/en_US/fbevents.js');
+              !function(f,b,e,v,n,t,s){
+                if(f.fbq)return;n=f.fbq=function(){
+                  n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)
+                };
+                if(!f._fbq)f._fbq=n;
+                n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)
+              }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+
               fbq('init', '1309033924008612');
-              fbq('track', 'PageView');
             }
+
+            // Gera um eventID único para deduplicação com CAPI
+            const eventId = 'pageview-' + Date.now() + '-' + Math.random().toString(36).substring(2,9);
+
+            // Dispara o PageView com eventID
+            fbq('track', 'PageView', {}, { eventID: eventId });
+
+            // Exponha o eventId no window para enviar via API também
+            window.__fb_event_id__ = eventId;
           `}
         </Script>
+
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: 'none' }}
+            src="https://www.facebook.com/tr?id=1309033924008612&ev=PageView&noscript=1"
+          />
+        </noscript>
 
         {/* UTMify Pixel */}
         <Script id="utmify-pixel" strategy="afterInteractive">
